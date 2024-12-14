@@ -1,0 +1,15 @@
+diff --git a/tests/regression/apparmor/mkprofile.pl b/tests/regression/apparmor/mkprofile.pl
+index 271b46ed..7a6a1fe5 100755
+--- a/tests/regression/apparmor/mkprofile.pl
++++ b/tests/regression/apparmor/mkprofile.pl
+@@ -112,6 +112,10 @@ sub gen_default_rules() {
+   # give every profile access to FIPS hmac files in /lib and /usr/lib
+   gen_file("/{usr/,}lib{,32,64}/.lib*.so*.hmac:r");
+   gen_file("/{usr/,}lib/{,**/}.lib*.so*.hmac:r");
++  
++  gen_file("/nix/store/*/lib/*.so*:rm");
++  # gen_cap("cap:dac_read_search", "");
++  # gen_unix("unix:(bind) type=stream", "");
+ }
+ 
+ sub gen_elf_binary($) {
