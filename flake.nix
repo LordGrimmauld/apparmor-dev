@@ -46,11 +46,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
         shared = gen_shared pkgs;
         aa_pkgs = gen_aa_pkgs pkgs;
-        check_pkgs = with pkgs; {
-          regression-test-src = callPackage ./check/regression-test-src.nix {
+        check_pkgs = {
+          regression-test-src = pkgs.callPackage ./check/regression-test-src.nix {
             inherit aa_pkgs shared;
           }; # check
-          regression-test-run = callPackage ./check/regression-test-run.nix {
+          regression-test-run = pkgs.callPackage ./check/regression-test-run.nix {
             # check
             inherit aa_pkgs check_pkgs;
           };
@@ -58,7 +58,12 @@
       in
       {
         packages = aa_pkgs;
-        checks = aa_pkgs // check_pkgs;
+        checks =
+          aa_pkgs
+          // check_pkgs
+          // {
+            apparmor-nixpkgs-test = (pkgs.extend self.overlays.default).nixosTests.apparmor;
+          };
         lib = {
           apparmorRulesFromClosure = pkgs.callPackage ./nix/apparmorRulesFromClosure.nix { };
         };
@@ -67,7 +72,7 @@
     ))
     // rec {
       overlays = {
-        default = final: prev: gen_aa_pkgs prev;
+        default = final: prev: (gen_aa_pkgs prev);
       };
 
       githubActions = nix-github-actions.lib.mkGithubMatrix {
