@@ -3,12 +3,12 @@
   which,
 
   shared,
-  flake_packages,
+  aa_pkgs,
+  callPackage,
 }:
 let
   inherit (shared) apparmor-meta;
-  inherit (flake_packages)
-    testing_config
+  inherit (aa_pkgs)
     apparmor-utils
     apparmor-parser
     apparmor-src
@@ -40,7 +40,9 @@ stdenv.mkDerivation {
 
   preCheck = ''
     export USE_SYSTEM=1
-    export LOGPROF="aa-logprof --configdir ${testing_config} --no-check-mountpoint"
+    export LOGPROF="aa-logprof --configdir ${
+      callPackage ../nix/testing_config.nix { inherit aa_pkgs; }
+    } --no-check-mountpoint"
   '';
 
   meta = apparmor-meta "profiles";

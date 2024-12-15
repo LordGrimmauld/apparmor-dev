@@ -4,10 +4,10 @@
   coreutils,
   gnused,
   gnugrep,
-  flake_packages,
+  aa_pkgs,
 }:
 let
-  inherit (flake_packages) apparmor-parser;
+  inherit (aa_pkgs) apparmor-parser;
 in
 writeShellScript "aa-teardown" ''
   PATH="${

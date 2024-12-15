@@ -11,8 +11,6 @@
     };
   };
 
-  # test_vm.nix
-
   outputs =
     {
       self,
@@ -25,31 +23,32 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         shared = import ./nix/aa-shared.nix { inherit (pkgs) python3 lib; };
-        flake_packages = with pkgs; {
-          aa-teardown = callPackage ./pkgs/aa-teardown.nix { inherit flake_packages; }; # support
+        aa_pkgs = with pkgs; {
           apparmor-src = callPackage ./pkgs/apparmor-sources.nix { inherit shared; }; # support
-          apparmor-bin-utils = callPackage ./pkgs/apparmor-bin-utils.nix { inherit flake_packages shared; };
+          aa-teardown = callPackage ./pkgs/aa-teardown.nix { inherit aa_pkgs; }; # support
+          apparmor-bin-utils = callPackage ./pkgs/apparmor-bin-utils.nix { inherit aa_pkgs shared; };
           apparmor-kernel-patches = callPackage ./pkgs/apparmor-kernel-patches.nix {
-            inherit flake_packages shared;
+            inherit aa_pkgs shared;
           };
-          apparmor-pam = callPackage ./pkgs/apparmor-pam.nix { inherit flake_packages shared; };
-          apparmor-parser = callPackage ./pkgs/apparmor-parser.nix { inherit flake_packages shared; };
-          apparmor-profiles = callPackage ./pkgs/apparmor-profiles.nix { inherit flake_packages shared; };
-          apparmor-utils = callPackage ./pkgs/apparmor-utils.nix { inherit flake_packages shared; };
-          libapparmor = callPackage ./pkgs/libapparmor.nix { inherit flake_packages shared; };
-          testing_config = callPackage ./pkgs/testing_config.nix { inherit flake_packages; }; # support
+          apparmor-pam = callPackage ./pkgs/apparmor-pam.nix { inherit aa_pkgs shared; };
+          apparmor-parser = callPackage ./pkgs/apparmor-parser.nix { inherit aa_pkgs shared; };
+          apparmor-profiles = callPackage ./pkgs/apparmor-profiles.nix { inherit aa_pkgs shared; };
+          apparmor-utils = callPackage ./pkgs/apparmor-utils.nix { inherit aa_pkgs shared; };
+          libapparmor = callPackage ./pkgs/libapparmor.nix { inherit aa_pkgs shared; };
+        };
+        check_pkgs = with pkgs; {
           regression-test-src = callPackage ./check/regression-test-src.nix {
-            inherit flake_packages shared;
+            inherit aa_pkgs shared;
           }; # check
           regression-test-run = callPackage ./check/regression-test-run.nix {
             # check
-            inherit flake_packages;
+            inherit aa_pkgs check_pkgs;
           };
         };
       in
       {
-        packages = flake_packages;
-        checks = flake_packages;
+        packages = aa_pkgs;
+        checks = aa_pkgs // check_pkgs;
         lib = {
           apparmorRulesFromClosure = pkgs.callPackage ./nix/apparmorRulesFromClosure.nix { };
         };

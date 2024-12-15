@@ -5,11 +5,11 @@
   runtimeShell,
   bashInteractive,
 
-  flake_packages,
+  aa_pkgs,
 }:
 let
 
-  inherit (flake_packages) apparmor-parser apparmor-src;
+  inherit (aa_pkgs) apparmor-parser apparmor-src;
 in
 (runCommand "logprof_conf"
   {

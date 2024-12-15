@@ -1,4 +1,4 @@
-args@{
+{
   stdenv,
   lib,
   autoreconfHook,
@@ -21,11 +21,11 @@ args@{
   dejagnu,
 
   shared,
-  flake_packages,
+  aa_pkgs,
 }:
 let
   inherit (shared) python apparmor-meta;
-  inherit (flake_packages) apparmor-src;
+  inherit (aa_pkgs) apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "libapparmor-git";

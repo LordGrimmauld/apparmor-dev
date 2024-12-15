@@ -1,11 +1,11 @@
 {
   stdenv,
   shared,
-  flake_packages,
+  aa_pkgs,
 }:
 let
   inherit (shared) apparmor-meta;
-  inherit (flake_packages) apparmor-src;
+  inherit (aa_pkgs) apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "apparmor-kernel-patches";

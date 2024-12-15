@@ -1,10 +1,12 @@
 {
   lib,
-  flake_packages,
+  aa_pkgs,
+  check_pkgs,
   writeShellApplication,
 }:
 let
-  inherit (flake_packages) apparmor-bin-utils regression-test-src;
+  inherit (aa_pkgs) apparmor-bin-utils;
+  inherit (check_pkgs) regression-test-src;
   control = [
     "aa_exec_wrapper"
     "check_dac_perms"

@@ -11,7 +11,7 @@
   dbus,
   liburing,
 
-  flake_packages,
+  aa_pkgs,
   shared,
 
   util-linux,
@@ -22,7 +22,7 @@
 }:
 let
   inherit (shared) apparmor-meta;
-  inherit (flake_packages)
+  inherit (aa_pkgs)
     libapparmor
     apparmor-src
     apparmor-parser
@@ -145,7 +145,7 @@ stdenv.mkDerivation {
       dbus
       liburing
     ]
-    ++ (with flake_packages; [
+    ++ (with aa_pkgs; [
       apparmor-parser
       apparmor-bin-utils
       apparmor-pam

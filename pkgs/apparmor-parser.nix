@@ -15,11 +15,11 @@
   shared,
   bison,
   lib,
-  flake_packages,
+  aa_pkgs,
 }:
 let
   inherit (shared) apparmor-meta;
-  inherit (flake_packages) libapparmor apparmor-src;
+  inherit (aa_pkgs) libapparmor apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "apparmor-parser";

@@ -13,11 +13,11 @@
   which,
 
   shared,
-  flake_packages,
+  aa_pkgs,
 }:
 let
   inherit (shared) python apparmor-meta;
-  inherit (flake_packages)
+  inherit (aa_pkgs)
     libapparmor
     apparmor-parser
     aa-teardown
