@@ -67,7 +67,7 @@
     ))
     // rec {
       overlays = {
-        default = final: gen_aa_pkgs;
+        default = final: prev: gen_aa_pkgs prev;
       };
 
       githubActions = nix-github-actions.lib.mkGithubMatrix {
