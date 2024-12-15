@@ -20,7 +20,7 @@
       platforms = platforms.linux;
     };
 
-  doCheck = false;
+  doCheck = true;
 
   python = python3.withPackages (ps: with ps; [ setuptools ]);
 }
