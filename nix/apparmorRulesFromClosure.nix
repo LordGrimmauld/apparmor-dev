@@ -1,7 +1,7 @@
 {
   lib,
   closureInfo,
-  runCommand,
+  runCommandLocal,
 }:
 
 let
@@ -9,6 +9,8 @@ let
   # rootPaths. To be included in an AppArmor profile like so:
   #
   #   include "${apparmorRulesFromClosure { } [ pkgs.hello ]}"
+  #
+  # built local because caching makes no sense for all the different profiles.
   apparmorRulesFromClosure =
     {
       # The store path of the derivation is given in $path
@@ -32,7 +34,7 @@ let
       name ? "",
     }:
     rootPaths:
-    runCommand ("apparmor-closure-rules" + lib.optionalString (name != "") "-${name}") { } ''
+    runCommandLocal ("apparmor-closure-rules" + lib.optionalString (name != "") "-${name}") { } ''
       touch $out
       while read -r path
       do printf >>$out "%s,\n" ${

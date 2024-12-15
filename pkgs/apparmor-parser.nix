@@ -1,4 +1,4 @@
-args@{
+{
   stdenv,
   which,
   flex,
@@ -12,22 +12,20 @@ args@{
   python3,
   bashInteractive,
 
-  # shared
-  lib,
+  shared,
   bison,
-
+  lib,
   flake_packages,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) apparmor-meta;
+  inherit (shared) apparmor-meta;
   inherit (flake_packages) libapparmor apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "apparmor-parser";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
 
   nativeBuildInputs = [
     bison
@@ -62,5 +60,7 @@ stdenv.mkDerivation {
   checkInputs =
     [ bashInteractive ] ++ (lib.optional withPerl perl) ++ (lib.optional withPython python3);
 
-  meta = apparmor-meta "rule parser";
+  meta = (apparmor-meta "rule parser") // {
+    mainProgram = "apparmor_parser";
+  };
 }

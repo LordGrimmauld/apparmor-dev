@@ -20,18 +20,18 @@ args@{
   # test
   dejagnu,
 
+  shared,
   flake_packages,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) python apparmor-meta;
+  inherit (shared) python apparmor-meta;
   inherit (flake_packages) apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "libapparmor-git";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
 
   strictDeps = true;
 

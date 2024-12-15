@@ -1,4 +1,4 @@
-args@{
+{
   stdenv,
   lib,
   makeWrapper,
@@ -12,11 +12,11 @@ args@{
   bash,
   which,
 
+  shared,
   flake_packages,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) python apparmor-meta;
+  inherit (shared) python apparmor-meta;
   inherit (flake_packages)
     libapparmor
     apparmor-parser
@@ -28,7 +28,7 @@ python.pkgs.buildPythonApplication {
   pname = "apparmor-utils";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
   format = "other";
 
   strictDeps = true;

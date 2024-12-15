@@ -4,7 +4,7 @@
   writeShellApplication,
 }:
 let
-  inherit (flake_packages) apparmor-bin-utils regression-tests;
+  inherit (flake_packages) apparmor-bin-utils regression-test-src;
   control = [
     "aa_exec_wrapper"
     "check_dac_perms"
@@ -23,12 +23,12 @@ writeShellApplication {
   name = "aa-reg-test";
 
   runtimeInputs = [
-    regression-tests
+    regression-test-src
   ];
 
   text = ''
         tdir=$(mktemp -d)
-        cp ${regression-tests}/* "$tdir" -r
+        cp ${regression-test-src}/* "$tdir" -r
         chmod o+rx -R "$tdir"
         export AA_EXEC=${lib.getExe' apparmor-bin-utils "aa-exec"}
         

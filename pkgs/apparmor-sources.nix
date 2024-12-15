@@ -1,22 +1,16 @@
-args@{
+{
   lib,
   fetchpatch,
   stdenv,
   linuxHeaders ? stdenv.cc.libc.linuxHeaders,
   buildPackages,
   bashInteractive,
-  python3,
   perl,
-  coreutils,
-  util-linux,
-  strace,
-  systemd,
-  gnused,
+  shared,
   fetchFromGitLab,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) apparmor-meta python;
+  inherit (shared) apparmor-meta python;
 in
 stdenv.mkDerivation {
   version = "4.1.0-unstable-2024-12-12";
@@ -31,7 +25,7 @@ stdenv.mkDerivation {
 
   patches =
     [
-      ./store-lib-path.patch
+      ../patches/store-lib-path.patch
     ]
     ++ lib.optionals stdenv.hostPlatform.isMusl [
       (fetchpatch {
@@ -60,7 +54,7 @@ stdenv.mkDerivation {
       substituteInPlace ./libraries/libapparmor/swig/perl/Makefile.am \
         --replace-fail install_vendor install_site
 
-      sed -i parser/rc.apparmor.functions -e '2i . ${./fix-rc.apparmor.functions.sh}'
+      sed -i parser/rc.apparmor.functions -e '2i . ${../patches/fix-rc.apparmor.functions.sh}'
       sed -i -E 's/^(DESTDIR|BINDIR|PYPREFIX)=.*//g' ./utils/Makefile
       sed -i utils/aa-unconfined -e "/my_env\['PATH'\]/d"
     ''

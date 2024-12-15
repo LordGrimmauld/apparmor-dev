@@ -1,17 +1,12 @@
-args@{
+{
   stdenv,
   which,
 
-  # shared
-  lib,
-  python3,
-
-  # outputs
+  shared,
   flake_packages,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) apparmor-meta;
+  inherit (shared) apparmor-meta;
   inherit (flake_packages)
     testing_config
     apparmor-utils
@@ -23,7 +18,7 @@ stdenv.mkDerivation {
   pname = "apparmor-profiles";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
 
   nativeBuildInputs = [ which ];
 

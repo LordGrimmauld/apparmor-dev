@@ -24,21 +24,25 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        flake_packages = {
-          aa-teardown = pkgs.callPackage ./nix/aa-teardown.nix { inherit flake_packages; };
-          apparmor-src = pkgs.callPackage ./nix/apparmor-sources.nix { };
-          apparmor-bin-utils = pkgs.callPackage ./nix/apparmor-bin-utils.nix { inherit flake_packages; };
-          apparmor-kernel-patches = pkgs.callPackage ./nix/apparmor-kernel-patches.nix {
-            inherit flake_packages;
+        shared = import ./nix/aa-shared.nix { inherit (pkgs) python3 lib; };
+        flake_packages = with pkgs; {
+          aa-teardown = callPackage ./pkgs/aa-teardown.nix { inherit flake_packages; }; # support
+          apparmor-src = callPackage ./pkgs/apparmor-sources.nix { inherit shared; }; # support
+          apparmor-bin-utils = callPackage ./pkgs/apparmor-bin-utils.nix { inherit flake_packages shared; };
+          apparmor-kernel-patches = callPackage ./pkgs/apparmor-kernel-patches.nix {
+            inherit flake_packages shared;
           };
-          apparmor-pam = pkgs.callPackage ./nix/apparmor-pam.nix { inherit flake_packages; };
-          apparmor-parser = pkgs.callPackage ./nix/apparmor-parser.nix { inherit flake_packages; };
-          apparmor-profiles = pkgs.callPackage ./nix/apparmor-profiles.nix { inherit flake_packages; };
-          apparmor-utils = pkgs.callPackage ./nix/apparmor-utils.nix { inherit flake_packages; };
-          libapparmor = pkgs.callPackage ./nix/libapparmor.nix { inherit flake_packages; };
-          testing_config = pkgs.callPackage ./nix/testing_config.nix { inherit flake_packages; };
-          regression-tests = pkgs.callPackage ./nix/regression-tests.nix { inherit flake_packages; };
-          regression-test-runner = pkgs.callPackage ./nix/regression-test-runner.nix {
+          apparmor-pam = callPackage ./pkgs/apparmor-pam.nix { inherit flake_packages shared; };
+          apparmor-parser = callPackage ./pkgs/apparmor-parser.nix { inherit flake_packages shared; };
+          apparmor-profiles = callPackage ./pkgs/apparmor-profiles.nix { inherit flake_packages shared; };
+          apparmor-utils = callPackage ./pkgs/apparmor-utils.nix { inherit flake_packages shared; };
+          libapparmor = callPackage ./pkgs/libapparmor.nix { inherit flake_packages shared; };
+          testing_config = callPackage ./pkgs/testing_config.nix { inherit flake_packages; }; # support
+          regression-test-src = callPackage ./check/regression-test-src.nix {
+            inherit flake_packages shared;
+          }; # check
+          regression-test-run = callPackage ./check/regression-test-run.nix {
+            # check
             inherit flake_packages;
           };
         };
@@ -46,6 +50,9 @@
       {
         packages = flake_packages;
         checks = flake_packages;
+        lib = {
+          apparmorRulesFromClosure = pkgs.callPackage ./nix/apparmorRulesFromClosure.nix { };
+        };
         formatter = pkgs.nixfmt-rfc-style;
       }
     ))

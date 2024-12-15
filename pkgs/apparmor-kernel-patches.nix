@@ -1,22 +1,17 @@
-args@{
+{
   stdenv,
-
-  # shared
-  lib,
-  python3,
-
+  shared,
   flake_packages,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) apparmor-meta;
+  inherit (shared) apparmor-meta;
   inherit (flake_packages) apparmor-src;
 in
 stdenv.mkDerivation {
   pname = "apparmor-kernel-patches";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
 
   dontBuild = true;
 

@@ -1,4 +1,4 @@
-args@{
+{
   stdenv,
   pkg-config,
   lib,
@@ -11,23 +11,17 @@ args@{
   dbus,
   liburing,
 
-  # shared
-  python3,
-
   flake_packages,
-  bashInteractive,
+  shared,
 
   util-linux,
   coreutils,
   gnused,
   strace,
   systemd,
-  gnumake,
-  writeShellApplication,
 }:
 let
-  apparmor_shared = import ./apparmor_shared.nix args;
-  inherit (apparmor_shared) apparmor-meta;
+  inherit (shared) apparmor-meta;
   inherit (flake_packages)
     libapparmor
     apparmor-src
@@ -39,13 +33,13 @@ stdenv.mkDerivation {
   pname = "apparmor-regression-tests";
   inherit (apparmor-src) version;
   src = apparmor-src;
-  inherit (apparmor_shared) doCheck;
+  inherit (shared) doCheck;
 
   prePatch = ''
     sed -i "s@/sbin/apparmor_parser@${apparmor-parser}/bin/apparmor_parser@g" tests/regression/apparmor/*.inc*
     sed -i "s@/sbin/apparmor_parser@${apparmor-parser}/bin/apparmor_parser@g" tests/regression/apparmor/netdomain/lib/netdomain_init.exp
 
-          substituteInPlace ./tests/regression/apparmor/prologue.inc \
+    substituteInPlace ./tests/regression/apparmor/prologue.inc \
       --replace-fail "/bin/true" "${lib.getExe' coreutils "true"}"
     substituteInPlace ./tests/regression/apparmor/regex.sh \
       --replace-fail "/bin/true" "${lib.getExe' coreutils "true"}"
@@ -140,8 +134,6 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [ ];
 
-  # dontBuild = true;
-
   makeFlags = [ "USE_SYSTEM=1" ];
 
   preCheck = "export USE_SYSTEM=1";
@@ -161,29 +153,10 @@ stdenv.mkDerivation {
     ])
     ++ lib.optional withPerl perl;
 
-  installPhase =
-    let
-      lp = lib.makeLibraryPath [ libapparmor ];
-    in
-    ''
-      popd
-      cp ./tests/regression/apparmor $out -r
-
-      # file -0 $out/tests/regression/apparmor/* | sed -nE 's/\x0:\s*(ELF|data).*//p' | xargs -I{} -n1 patchelf {} --add-rpath ${lp}
-      # patchelf $out/tests/regression/apparmor/open --add-rpath ${lp}
-
-      #echo "#! ${lib.getExe bashInteractive}" >> $out/tests/regression/apparmor/all-tests.sh
-      #echo 'tdir=$(mktemp -d)' >> $out/tests/regression/apparmor/all-tests.sh
-      #printf "cp $out/* " >> $out/tests/regression/apparmor/all-tests.sh
-      #echo '$tdir -r' >> $out/tests/regression/apparmor/all-tests.sh
-      #echo 'pushd $tdir/tests/regression/apparmor' >> $out/tests/regression/apparmor/all-tests.sh
-      # echo "pushd $out/tests/regression/apparmor" >> $out/tests/regression/apparmor/all-tests.sh
-      #echo 'export AA_EXEC=${lib.getExe' apparmor-bin-utils "aa-exec"}' >> $out/tests/regression/apparmor/all-tests.sh
-      #ls ./tests/regression/apparmor/*.sh -1 | xargs -n1 -i{} echo '${lib.getExe bashInteractive} $tdir/{}' >> $out/tests/regression/apparmor/all-tests.sh
-      #echo 'popd' >> $out/tests/regression/apparmor/all-tests.sh
-
-      #chmod +x $out/tests/regression/apparmor/all-tests.sh
-    '';
+  installPhase = ''
+    popd
+    cp ./tests/regression/apparmor $out -r
+  '';
 
   meta = apparmor-meta "regression test suite";
 }
