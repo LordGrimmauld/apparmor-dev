@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+
+    nix-github-actions = {
+      url = "github:nix-community/nix-github-actions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # test_vm.nix
@@ -12,6 +17,7 @@
     {
       self,
       nixpkgs,
+      nix-github-actions,
       flake-utils,
     }:
     (flake-utils.lib.eachSystem [ "aarch64-linux" "x86_64-linux" ] (
@@ -39,9 +45,13 @@
       in
       {
         packages = flake_packages;
-        checks = flake_packages // {
-        };
+        checks = flake_packages;
         formatter = pkgs.nixfmt-rfc-style;
       }
-    ));
+    ))
+    // {
+      githubActions = nix-github-actions.lib.mkGithubMatrix {
+        checks = nixpkgs.lib.getAttrs [ "x86_64-linux" ] self.checks;
+      }; # todo: figure out testing on aarch64-linux
+    };
 }
