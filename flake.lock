@@ -40,11 +40,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1733924075,
-        "narHash": "sha256-dxaP3CPVeBYsMrLRUl/gzA65o3Q15xmNSMpJ7Ve7Kzg=",
+        "lastModified": 1734334095,
+        "narHash": "sha256-qSJfBp/H36SpIuZnfpfW1IUQ9p8P22B3mMXzjKmdr2o=",
         "owner": "LordGrimmauld",
         "repo": "nixpkgs",
-        "rev": "1ecda090dde335303a76bb93ae8f214afac8a117",
+        "rev": "8ecddfad5cbdf3c16b2f5bdb9740867aa53493c5",
         "type": "github"
       },
       "original": {

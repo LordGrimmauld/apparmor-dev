@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:LordGrimmauld/nixpkgs?ref=apparmor_module_pr";
+    # nixpkgs.url = "git+file:/home/grimmauld/coding/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
 
     nix-github-actions = {
