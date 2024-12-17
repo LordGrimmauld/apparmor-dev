@@ -70,7 +70,11 @@
               hostPkgs = pkgs.extend self.overlays.default;
               imports = lib.singleton {
                 name = "appaarmor-regression-test-vm";
-                nodes.test.security.apparmor.enable = true;
+                nodes.test = {
+                  security.apparmor.enable = true;
+                  security.apparmor.enableCache = true; # e2e tess expects caches
+                  security.auditd.enable = true;
+                };
               };
               testScript = ''
                 print("Starting VM test...")

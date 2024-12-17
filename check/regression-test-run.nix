@@ -3,6 +3,13 @@
   aa_pkgs,
   check_pkgs,
   writeShellApplication,
+  bad ? [
+    "owlsm"
+    "env_check"
+    "attach_disconnected"
+    "capabilities"
+    "unix_socket_pathname"
+  ],
 }:
 let
   inherit (aa_pkgs) apparmor-bin-utils;
@@ -10,14 +17,6 @@ let
   control = [
     "aa_exec_wrapper"
     "check_dac_perms"
-  ];
-  bad = [
-    "owlsm"
-    "env_check"
-    "attach_disconnected"
-    "capabilities"
-    "unix_socket_pathname"
-    "e2e"
   ];
 
   blacklist = builtins.concatStringsSep " " (control ++ bad);
