@@ -17,6 +17,7 @@ let
     "attach_disconnected"
     "capabilities"
     "unix_socket_pathname"
+    "e2e"
   ];
 
   blacklist = builtins.concatStringsSep " " (control ++ bad);

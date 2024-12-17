@@ -45,6 +45,8 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        nixos-lib = import (nixpkgs + "/nixos/lib") { };
+        inherit (pkgs) lib;
         shared = gen_shared pkgs;
         aa_pkgs = gen_aa_pkgs pkgs;
         check_pkgs = {
@@ -64,6 +66,19 @@
           // check_pkgs
           // {
             apparmor-nixpkgs-test = (pkgs.extend self.overlays.default).nixosTests.apparmor;
+            apparmor-regression-test = nixos-lib.runTest {
+              hostPkgs = pkgs.extend self.overlays.default;
+              imports = lib.singleton {
+                name = "appaarmor-regression-test-vm";
+                nodes.test.security.apparmor.enable = true;
+              };
+              testScript = ''
+                print("Starting VM test...")
+                machine.wait_for_unit("default.target")
+                machine.succeed("journalctl -u apparmor -b 0")
+                machine.succeed("${lib.getExe check_pkgs.regression-test-run}")
+              '';
+            };
           };
         lib = {
           apparmorRulesFromClosure = pkgs.callPackage ./nix/apparmorRulesFromClosure.nix { };
