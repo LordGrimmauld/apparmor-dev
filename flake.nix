@@ -91,19 +91,14 @@
       }
     ))
     // {
-      overlays = {
-        default = final: prev: (gen_aa_pkgs prev);
-      };
+      overlays.default = final: prev: (gen_aa_pkgs prev);
 
       githubActions = nix-github-actions.lib.mkGithubMatrix {
         checks = nixpkgs.lib.getAttrs [ "x86_64-linux" ] self.checks;
       }; # todo: figure out testing on aarch64-linux
 
-      nixosModules = {
-        # Use a locally built Lix
-        default = {
-          nixpkgs.overlays = [ self.overlays.default ];
-        };
+      nixosModules.default = {
+        nixpkgs.overlays = [ self.overlays.default ];
       };
     };
 }
