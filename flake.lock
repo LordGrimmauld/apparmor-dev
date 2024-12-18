@@ -40,16 +40,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1734334095,
-        "narHash": "sha256-qSJfBp/H36SpIuZnfpfW1IUQ9p8P22B3mMXzjKmdr2o=",
-        "owner": "LordGrimmauld",
+        "lastModified": 1734536697,
+        "narHash": "sha256-G/HnRTtU+ob8x967kjzMRqjNFbAdllrcjYc+IcaR15Y=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "8ecddfad5cbdf3c16b2f5bdb9740867aa53493c5",
+        "rev": "9c40bef08a5bdc0ccc3207f4282a1ded83e77a7a",
         "type": "github"
       },
       "original": {
-        "owner": "LordGrimmauld",
-        "ref": "apparmor_module_pr",
+        "owner": "NixOS",
+        "ref": "nixos-unstable-small",
         "repo": "nixpkgs",
         "type": "github"
       }
