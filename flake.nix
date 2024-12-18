@@ -90,7 +90,7 @@
         formatter = pkgs.nixfmt-rfc-style;
       }
     ))
-    // rec {
+    // {
       overlays = {
         default = final: prev: (gen_aa_pkgs prev);
       };
@@ -102,7 +102,7 @@
       nixosModules = {
         # Use a locally built Lix
         default = {
-          nixpkgs.overlays = [ overlays.default ];
+          nixpkgs.overlays = [ self.overlays.default ];
         };
       };
     };
