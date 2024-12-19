@@ -20,26 +20,17 @@
       flake-utils,
     }:
     let
-      gen_shared = pkgs: import ./nix/aa-shared.nix { inherit (pkgs) python3 lib; };
-      gen_aa_pkgs =
-        pkgs:
-        let
-          shared = gen_shared pkgs;
-          aa_pkgs = with pkgs; {
-            apparmor-src = callPackage ./pkgs/apparmor-sources.nix { inherit shared; }; # support
-            aa-teardown = callPackage ./pkgs/aa-teardown.nix { inherit aa_pkgs; }; # support
-            apparmor-bin-utils = callPackage ./pkgs/apparmor-bin-utils.nix { inherit aa_pkgs shared; };
-            apparmor-kernel-patches = callPackage ./pkgs/apparmor-kernel-patches.nix {
-              inherit aa_pkgs shared;
-            };
-            apparmor-pam = callPackage ./pkgs/apparmor-pam.nix { inherit aa_pkgs shared; };
-            apparmor-parser = callPackage ./pkgs/apparmor-parser.nix { inherit aa_pkgs shared; };
-            apparmor-profiles = callPackage ./pkgs/apparmor-profiles.nix { inherit aa_pkgs shared; };
-            apparmor-utils = callPackage ./pkgs/apparmor-utils.nix { inherit aa_pkgs shared; };
-            libapparmor = callPackage ./pkgs/libapparmor.nix { inherit aa_pkgs shared; };
-          };
-        in
-        aa_pkgs;
+      gen_aa_pkgs = pkgs: {
+        inherit (pkgs.callPackages ./pkgs { })
+          libapparmor
+          apparmor-utils
+          apparmor-bin-utils
+          apparmor-parser
+          apparmor-pam
+          apparmor-profiles
+          apparmor-kernel-patches 
+          apparmor-regression-test;
+        };
     in
     (flake-utils.lib.eachSystem [ "aarch64-linux" "x86_64-linux" ] (
       system:
@@ -47,43 +38,30 @@
         pkgs = nixpkgs.legacyPackages.${system};
         nixos-lib = import (nixpkgs + "/nixos/lib") { };
         inherit (pkgs) lib;
-        shared = gen_shared pkgs;
         aa_pkgs = gen_aa_pkgs pkgs;
-        check_pkgs = {
-          regression-test-src = pkgs.callPackage ./check/regression-test-src.nix {
-            inherit aa_pkgs shared;
-          }; # check
-          regression-test-run = pkgs.callPackage ./check/regression-test-run.nix {
-            # check
-            inherit aa_pkgs check_pkgs;
-          };
-        };
       in
       {
         packages = aa_pkgs;
-        checks =
-          aa_pkgs
-          // check_pkgs
-          // {
-            apparmor-nixpkgs-test = (pkgs.extend self.overlays.default).nixosTests.apparmor;
-            apparmor-regression-test = nixos-lib.runTest {
-              hostPkgs = pkgs.extend self.overlays.default;
-              imports = lib.singleton {
-                name = "appaarmor-regression-test-vm";
-                nodes.test = {
-                  security.apparmor.enable = true;
-                  security.apparmor.enableCache = true; # e2e tess expects caches
-                  security.auditd.enable = true;
-                };
+        checks = aa_pkgs // {
+          apparmor-nixpkgs-test = (pkgs.extend self.overlays.default).nixosTests.apparmor;
+          apparmor-regression-test = nixos-lib.runTest {
+            hostPkgs = pkgs.extend self.overlays.default;
+            imports = lib.singleton {
+              name = "appaarmor-regression-test-vm";
+              nodes.test = {
+                security.apparmor.enable = true;
+                security.apparmor.enableCache = true; # e2e tess expects caches
+                security.auditd.enable = true;
               };
-              testScript = ''
-                print("Starting VM test...")
-                machine.wait_for_unit("default.target")
-                machine.succeed("journalctl -u apparmor -b 0")
-                machine.succeed("${lib.getExe check_pkgs.regression-test-run}")
-              '';
             };
+            testScript = ''
+              print("Starting VM test...")
+              machine.wait_for_unit("default.target")
+              machine.succeed("journalctl -u apparmor -b 0")
+              machine.succeed("${lib.getExe aa_pkgs.apparmor-regression-test}")
+            '';
           };
+        };
         lib = {
           apparmorRulesFromClosure = pkgs.callPackage ./nix/apparmorRulesFromClosure.nix { };
         };

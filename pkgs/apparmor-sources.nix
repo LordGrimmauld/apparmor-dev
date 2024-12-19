@@ -2,15 +2,16 @@
   lib,
   fetchpatch,
   stdenv,
-  linuxHeaders ? stdenv.cc.libc.linuxHeaders,
   buildPackages,
   bashInteractive,
-  perl,
-  shared,
   fetchFromGitLab,
+  apparmor-shared,
+  withPython ? apparmor-shared.withPython,
+  withPerl ? apparmor-shared.withPerl,
+  perl,
 }:
 let
-  inherit (shared) apparmor-meta python;
+  inherit (apparmor-shared) python;
 in
 stdenv.mkDerivation {
   version = "4.1.0-unstable-2024-12-12";
@@ -25,7 +26,7 @@ stdenv.mkDerivation {
 
   patches =
     [
-      ../patches/store-lib-path.patch
+      ./patches/store-lib-path.patch
     ]
     ++ lib.optionals stdenv.hostPlatform.isMusl [
       (fetchpatch {
@@ -35,38 +36,21 @@ stdenv.mkDerivation {
       })
     ];
 
-  prePatch =
-    ''
-      chmod a+x ./common/list_capabilities.sh ./common/list_af_names.sh
-      patchShebangs .
-      substituteInPlace ./common/Make.rules \
-        --replace-fail "/usr/bin/pod2man" "${buildPackages.perl}/bin/pod2man" \
-        --replace-fail "/usr/bin/pod2html" "${buildPackages.perl}/bin/pod2html" \
-        --replace-fail "/usr/share/man" "share/man"
-      substituteInPlace ./utils/Makefile \
-        --replace-fail "/usr/include/linux/capability.h" "${linuxHeaders}/include/linux/capability.h"
-      substituteInPlace ./parser/tst/Makefile \
-        --replace-fail "/usr/bin/prove" "${buildPackages.perl}/bin/prove"
-      substituteInPlace ./parser/Makefile \
-        --replace-fail "/usr/include/linux/capability.h" "${linuxHeaders}/include/linux/capability.h"
-      substituteInPlace parser/rc.apparmor.functions \
-        --replace-fail "/sbin/apparmor_parser" "$out/bin/apparmor_parser" # FIXME
-      substituteInPlace ./libraries/libapparmor/swig/perl/Makefile.am \
-        --replace-fail install_vendor install_site
+  prePatch = ''
+    chmod a+x ./common/list_capabilities.sh ./common/list_af_names.sh
+    patchShebangs .
+    substituteInPlace ./common/Make.rules \
+      --replace-fail "/usr/bin/pod2man" "${buildPackages.perl}/bin/pod2man" \
+      --replace-fail "/usr/bin/pod2html" "${buildPackages.perl}/bin/pod2html" \
+      --replace-fail "/usr/share/man" "share/man"
+  '';
 
-      sed -i parser/rc.apparmor.functions -e '2i . ${../patches/fix-rc.apparmor.functions.sh}'
-      sed -i -E 's/^(DESTDIR|BINDIR|PYPREFIX)=.*//g' ./utils/Makefile
-      sed -i utils/aa-unconfined -e "/my_env\['PATH'\]/d"
-    ''
-    + (lib.optionalString stdenv.hostPlatform.isMusl ''
-      sed -i ./utils/Makefile -e "/\<vim\>/d"
-    '');
-
-  nativeBuildInputs = [
-    python
-    perl
-    bashInteractive
-  ];
+  nativeBuildInputs =
+    [
+      bashInteractive
+    ]
+    ++ (lib.optional withPython python)
+    ++ (lib.optional withPerl perl);
 
   buildPhase = "# do nothing";
 
@@ -74,5 +58,5 @@ stdenv.mkDerivation {
     cp -r . "$out"
   '';
 
-  meta = apparmor-meta "apparmor sources, with patches";
+  meta = apparmor-shared.apparmor-meta "apparmor sources, with patches";
 }

@@ -5,12 +5,8 @@
   runtimeShell,
   bashInteractive,
 
-  aa_pkgs,
+  apparmor-shared,
 }:
-let
-
-  inherit (aa_pkgs) apparmor-parser apparmor-src;
-in
 (runCommand "logprof_conf"
   {
     header = ''
@@ -21,7 +17,7 @@ in
         # Use: journalctl -b --since today --grep audit: | aa-logprof
         logfiles = /dev/stdin
 
-        parser = ${apparmor-parser}/bin/apparmor_parser
+        parser = ${apparmor-shared.aa-pkgs.apparmor-parser}/bin/apparmor_parser
         ldd = ${glibc.bin}/bin/ldd
         logger = ${util-linux}/bin/logger
 
@@ -42,7 +38,7 @@ in
   ''
     mkdir $out
     cp $headerPath $out/logprof.conf
-    cp ${apparmor-src}/utils/severity.db $out/severity.db
-    sed '1,/\[qualifiers\]/d' ${apparmor-src}/utils/logprof.conf >> $out/logprof.conf
+    cp ${apparmor-shared.src}/utils/severity.db $out/severity.db
+    sed '1,/\[qualifiers\]/d' ${apparmor-shared.src}/utils/logprof.conf >> $out/logprof.conf
   ''
 )

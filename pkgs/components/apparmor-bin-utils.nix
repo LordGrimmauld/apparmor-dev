@@ -5,23 +5,17 @@
   lib,
 
   # testing
-  withPerl ?
-    stdenv.hostPlatform == stdenv.buildPlatform && lib.meta.availableOn stdenv.hostPlatform perl,
+  withPerl ? apparmor-shared.withPerl,
   perl,
 
-  shared,
-
-  aa_pkgs,
+  apparmor-shared,
 }:
 let
-  inherit (shared) apparmor-meta;
-  inherit (aa_pkgs) libapparmor apparmor-src;
+  inherit (apparmor-shared.aa-pkgs) libapparmor;
 in
 stdenv.mkDerivation {
   pname = "apparmor-bin-utils";
-  inherit (apparmor-src) version;
-  src = apparmor-src;
-  inherit (shared) doCheck;
+  inherit (apparmor-shared) version src doCheck;
 
   nativeBuildInputs = [
     pkg-config
@@ -50,5 +44,5 @@ stdenv.mkDerivation {
     "SBINDIR=$(out)/bin"
   ];
 
-  meta = apparmor-meta "binary user-land utilities";
+  meta = apparmor-shared.apparmor-meta "binary user-land utilities";
 }

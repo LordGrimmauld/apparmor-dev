@@ -7,12 +7,9 @@
   which,
   flex,
   bison,
-  withPerl ?
-    stdenv.hostPlatform == stdenv.buildPlatform && lib.meta.availableOn stdenv.hostPlatform perl,
+  withPerl ? apparmor-shared.withPerl,
   perl,
-  withPython ?
-    stdenv.hostPlatform == stdenv.buildPlatform && lib.meta.availableOn stdenv.hostPlatform python3,
-  python3,
+  withPython ? apparmor-shared.withPython,
   swig,
   ncurses,
   libxcrypt,
@@ -20,18 +17,19 @@
   # test
   dejagnu,
 
-  shared,
-  aa_pkgs,
+  apparmor-shared,
 }:
 let
-  inherit (shared) python apparmor-meta;
-  inherit (aa_pkgs) apparmor-src;
+  inherit (apparmor-shared) python;
 in
 stdenv.mkDerivation {
   pname = "libapparmor-git";
-  inherit (apparmor-src) version;
-  src = apparmor-src;
-  inherit (shared) doCheck;
+  inherit (apparmor-shared) src version doCheck;
+
+  prePatch = ''
+    substituteInPlace ./libraries/libapparmor/swig/perl/Makefile.am \
+      --replace-fail install_vendor install_site
+  '';
 
   strictDeps = true;
 
@@ -73,5 +71,5 @@ stdenv.mkDerivation {
   checkInputs = [ dejagnu ];
   checkTarget = "check";
 
-  meta = apparmor-meta "library";
+  meta = apparmor-shared.apparmor-meta "library";
 }

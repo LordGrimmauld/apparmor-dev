@@ -4,11 +4,8 @@
   coreutils,
   gnused,
   gnugrep,
-  aa_pkgs,
+  apparmor-parser,
 }:
-let
-  inherit (aa_pkgs) apparmor-parser;
-in
 writeShellScript "aa-teardown" ''
   PATH="${
     lib.makeBinPath [

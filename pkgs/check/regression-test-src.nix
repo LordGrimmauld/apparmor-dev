@@ -11,29 +11,19 @@
   dbus,
   liburing,
 
-  aa_pkgs,
-  shared,
-
   util-linux,
   coreutils,
   gnused,
   strace,
   systemd,
+  apparmor-shared,
 }:
 let
-  inherit (shared) apparmor-meta;
-  inherit (aa_pkgs)
-    libapparmor
-    apparmor-src
-    apparmor-parser
-    apparmor-bin-utils
-    ;
+  inherit (apparmor-shared.aa-pkgs) apparmor-parser libapparmor;
 in
 stdenv.mkDerivation {
   pname = "apparmor-regression-tests";
-  inherit (apparmor-src) version;
-  src = apparmor-src;
-  inherit (shared) doCheck;
+  inherit (apparmor-shared) version src doCheck;
 
   prePatch = ''
     sed -i "s@/sbin/apparmor_parser@${apparmor-parser}/bin/apparmor_parser@g" tests/regression/apparmor/*.inc*
@@ -145,7 +135,7 @@ stdenv.mkDerivation {
       dbus
       liburing
     ]
-    ++ (with aa_pkgs; [
+    ++ (with apparmor-shared.aa-pkgs; [
       apparmor-parser
       apparmor-bin-utils
       apparmor-pam
@@ -157,6 +147,4 @@ stdenv.mkDerivation {
     popd
     cp ./tests/regression/apparmor $out -r
   '';
-
-  meta = apparmor-meta "regression test suite";
 }

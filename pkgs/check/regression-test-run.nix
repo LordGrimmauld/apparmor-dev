@@ -1,8 +1,8 @@
 {
   lib,
-  aa_pkgs,
-  check_pkgs,
   writeShellApplication,
+  callPackage,
+  apparmor-shared,
   bad ? [
     "owlsm"
     "env_check"
@@ -12,8 +12,8 @@
   ],
 }:
 let
-  inherit (aa_pkgs) apparmor-bin-utils;
-  inherit (check_pkgs) regression-test-src;
+  inherit (apparmor-shared.aa-pkgs) apparmor-bin-utils;
+  regression-test-src = callPackage ./regression-test-src.nix { inherit apparmor-shared; };
   control = [
     "aa_exec_wrapper"
     "check_dac_perms"
@@ -22,7 +22,7 @@ let
   blacklist = builtins.concatStringsSep " " (control ++ bad);
 in
 writeShellApplication {
-  name = "aa-reg-test";
+  name = "apparmor-regression-test";
 
   runtimeInputs = [
     regression-test-src

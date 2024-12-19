@@ -2,23 +2,15 @@
   stdenv,
   which,
 
-  shared,
-  aa_pkgs,
+  apparmor-shared,
   callPackage,
 }:
 let
-  inherit (shared) apparmor-meta;
-  inherit (aa_pkgs)
-    apparmor-utils
-    apparmor-parser
-    apparmor-src
-    ;
+  inherit (apparmor-shared.aa-pkgs) apparmor-utils apparmor-parser;
 in
 stdenv.mkDerivation {
   pname = "apparmor-profiles";
-  inherit (apparmor-src) version;
-  src = apparmor-src;
-  inherit (shared) doCheck;
+  inherit (apparmor-shared) version src doCheck;
 
   nativeBuildInputs = [ which ];
 
@@ -41,9 +33,9 @@ stdenv.mkDerivation {
   preCheck = ''
     export USE_SYSTEM=1
     export LOGPROF="aa-logprof --configdir ${
-      callPackage ../nix/testing_config.nix { inherit aa_pkgs; }
+      callPackage ../check/testing_config.nix { inherit apparmor-shared; }
     } --no-check-mountpoint"
   '';
 
-  meta = apparmor-meta "profiles";
+  meta = apparmor-shared.apparmor-meta "profiles";
 }

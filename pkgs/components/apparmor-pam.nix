@@ -4,18 +4,14 @@
   which,
   pam,
 
-  shared,
-  aa_pkgs,
+  apparmor-shared,
 }:
 let
-  inherit (shared) apparmor-meta;
-  inherit (aa_pkgs) libapparmor apparmor-src;
+  inherit (apparmor-shared.aa-pkgs) libapparmor;
 in
 stdenv.mkDerivation {
   pname = "apparmor-pam";
-  inherit (apparmor-src) version;
-  src = apparmor-src;
-  inherit (shared) doCheck;
+  inherit (apparmor-shared) version src doCheck;
 
   nativeBuildInputs = [
     pkg-config
@@ -33,5 +29,5 @@ stdenv.mkDerivation {
   makeFlags = [ "USE_SYSTEM=1" ];
   installFlags = [ "DESTDIR=$(out)" ];
 
-  meta = apparmor-meta "PAM service";
+  meta = apparmor-shared.apparmor-meta "PAM service";
 }
