@@ -10,8 +10,8 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@10
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
         with:
           remove-dotnet: 'true'
           remove-android: 'true'
