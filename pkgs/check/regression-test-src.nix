@@ -97,6 +97,10 @@ stdenv.mkDerivation {
       --replace-fail "/sbin/losetup" "${lib.getExe' util-linux "losetup"}"
     substituteInPlace ./tests/regression/apparmor/mount.sh \
       --replace-fail "/sbin/losetup" "${lib.getExe' util-linux "losetup"}"
+    substituteInPlace ./tests/regression/apparmor/file_unbindable_mount.sh \
+      --replace-fail "/sbin/losetup" "${lib.getExe' util-linux "losetup"}"
+    substituteInPlace ./tests/regression/apparmor/overlayfs.sh \
+      --replace-fail "/sbin/losetup" "${lib.getExe' util-linux "losetup"}"
     substituteInPlace ./tests/regression/apparmor/pivot_root.sh \
       --replace-fail "/sbin/init" "${lib.getExe' systemd "init"}"
 

@@ -1,0 +1,31 @@
+diff --git a/tests/regression/apparmor/overlayfs.sh b/tests/regression/apparmor/overlayfs.sh
+index e342ef5f..90a339cf 100644
+--- a/tests/regression/apparmor/overlayfs.sh
++++ b/tests/regression/apparmor/overlayfs.sh
+@@ -32,9 +32,9 @@ mkdir "${mount_target}"
+ mkdir "${overlayfs_lower}"
+ mkdir "${overlayfs_other}"
+ 
+-fallocate -l 512K "${backing_file_lower}"
++fallocate -l 8M "${backing_file_lower}"
+ mkfs.ext4 -F "${backing_file_lower}" > /dev/null 2> /dev/null
+-fallocate -l 512K "${backing_file_upper}"
++fallocate -l 8M "${backing_file_upper}"
+ mkfs.ext4 -F "${backing_file_upper}" > /dev/null 2> /dev/null
+ 
+ losetup -f "${backing_file_lower}" || fatalerror 'Unable to set up lower loop device'
+@@ -51,11 +51,11 @@ mkdir "${overlayfs_workdir}"
+ 
+ mount -t overlay -o lowerdir="${overlayfs_lower}",upperdir="${overlayfs_upper}",workdir="${overlayfs_workdir}" none "${mount_target}"|| fatalerror 'Unable to set up overlayfs'
+ 
+-fallocate -l 16K "${overlayfs_lower}/lower_file"
++fallocate -l 2M "${overlayfs_lower}/lower_file"
+ touch "${overlayfs_lower}/lower_file_2"
+-fallocate -l 16K "${overlayfs_upper}/upper_file"
++fallocate -l 2M "${overlayfs_upper}/upper_file"
+ touch "${overlayfs_upper}/upper_file_2"
+-fallocate -l 16K "${mount_target}/overlay_file"
++fallocate -l 2M "${mount_target}/overlay_file"
+ # echo is also a builtin, making things a bit more complicated
+ cp "$(type -P echo)" "${overlayfs_lower}/lower_echo"
+ cp "$(type -P echo)" "${overlayfs_upper}/upper_echo"

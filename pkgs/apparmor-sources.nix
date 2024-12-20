@@ -20,13 +20,14 @@ stdenv.mkDerivation {
   src = fetchFromGitLab {
     owner = "apparmor";
     repo = "apparmor";
-    rev = "6d7b5df94757b0d93d195f8789e3eb81bf0fdf4e";
-    hash = "sha256-O+4a4qZQ1Xv/lNC3b91SsGHE6rD2XSMUUNABkk+vvoA=";
+    rev = "8e431ebcd915216a03ebc8d01e72b1741bb2f855";
+    hash = "sha256-Pzyuw5Fd7MWYAWwPII4EUnZTwKoll+1KKo6UQI2nawk=";
   };
 
   patches =
     [
       ./patches/store-lib-path.patch
+      ./patches/overlayfs-reg-test-fix.patch
     ]
     ++ lib.optionals stdenv.hostPlatform.isMusl [
       (fetchpatch {
