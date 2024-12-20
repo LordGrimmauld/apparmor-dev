@@ -42,16 +42,19 @@
       in
       {
         packages = aa_pkgs;
-        checks = aa_pkgs // {
-          apparmor-nixpkgs-test = (pkgs.extend self.overlays.default).nixosTests.apparmor;
+        checks = let
+          overlayed = pkgs.extend self.overlays.default;
+        in aa_pkgs // {
+          apparmor-nixpkgs-test = overlayed.nixosTests.apparmor // { nodes.machine.nixpkgs.overlays = [ self.overlays.default ]; }; # fixme: figure out overlay here
           apparmor-regression-test = nixos-lib.runTest {
-            hostPkgs = pkgs.extend self.overlays.default;
+            hostPkgs = overlayed;
             imports = lib.singleton {
               name = "appaarmor-regression-test-vm";
               nodes.test = {
                 security.apparmor.enable = true;
                 security.apparmor.enableCache = true; # e2e tess expects caches
                 security.auditd.enable = true;
+                nixpkgs.overlays = [ self.overlays.default ];
               };
             };
             testScript = ''
