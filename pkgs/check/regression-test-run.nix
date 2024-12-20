@@ -9,6 +9,7 @@
     "attach_disconnected"
     "capabilities"
     "unix_socket_pathname"
+    "overlayfs"
   ],
 }:
 let
