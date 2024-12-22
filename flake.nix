@@ -2,7 +2,7 @@
   description = "Nix support for the AppArmor user space development project.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # nixpkgs.url = "git+file:/home/grimmauld/coding/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
 
